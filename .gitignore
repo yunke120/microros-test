@@ -34,7 +34,7 @@
 *.app
 *.i*86
 *.x86_64
-*.hex
+
 
 # Debug files
 *.dSYM/
@@ -51,4 +51,4 @@ Module.symvers
 Mkfile.old
 dkms.conf
 *.lst
-*.bin
+
