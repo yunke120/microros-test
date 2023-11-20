@@ -247,8 +247,8 @@ void u3_printf(char* fmt,...)
 	  uint8_t buffer[200];
 	  uint16_t i;
 	  va_list ap;
-	  va_start(ap,fmt);          			//ap指向fmt的地址
-	  i = vsprintf(buffer,fmt,ap);	                //vsprintf返回数组的长度
+	  va_start(ap,fmt);          			//ap指向fmt的地�?
+	  i = vsprintf(buffer,fmt,ap);	                //vsprintf返回数组的长�?
 	  va_end(ap);
 
 	  HAL_UART_Transmit(&huart3,(uint8_t *)buffer,i,0X00FF);

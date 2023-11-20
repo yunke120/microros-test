@@ -59,7 +59,7 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
-uint32_t defaultTaskBuffer[ 3200 ];
+uint32_t defaultTaskBuffer[ 3000 ];
 osStaticThreadDef_t defaultTaskControlBlock;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
@@ -68,13 +68,6 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_mem = &defaultTaskBuffer[0],
   .stack_size = sizeof(defaultTaskBuffer),
   .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for ledTask */
-osThreadId_t ledTaskHandle;
-const osThreadAttr_t ledTask_attributes = {
-  .name = "ledTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -91,7 +84,6 @@ void * microros_zero_allocate(size_t number_of_elements, size_t size_of_element,
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
-void ledTaskEntry(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -125,18 +117,15 @@ void MX_FREERTOS_Init(void) {
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
-  /* creation of ledTask */
-  ledTaskHandle = osThreadNew(ledTaskEntry, NULL, &ledTask_attributes);
-
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   if(defaultTaskHandle == NULL)
   {
-    u3_printf("failed to create microros thread");
+    u3_printf("Failed to create microros thread!\r\n");
   }
   else
   {
-    u3_printf("create microros thread success.");
+    u3_printf("Create microros thread successfully.\r\n");
   }
   /* USER CODE END RTOS_THREADS */
 
@@ -159,7 +148,7 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   // micro-ROS configuration
 
-  osDelay(5000);
+  osDelay(5000); // Wait for ROS agent to open
 
   rmw_uros_set_custom_transport(
     true,
@@ -176,9 +165,9 @@ void StartDefaultTask(void *argument)
   freeRTOS_allocator.zero_allocate =  microros_zero_allocate;
 
   if (!rcutils_set_default_allocator(&freeRTOS_allocator)) {
-      u3_printf("Error on default allocators (line %d)\r\n", __LINE__); 
+      u3_printf("rcutils_set_default_allocator error (line %d)\r\n", __LINE__); 
   }else{
-      u3_printf("Success on default allocators.\r\n");
+      u3_printf("rcutils_set_default_allocator success.\r\n");
   }
 
   // micro-ROS app
@@ -208,7 +197,7 @@ void StartDefaultTask(void *argument)
   }
   else
   {
-	  u3_printf("rclc_support_init ok.\r\n");
+	  u3_printf("rclc_support_init success.\r\n");
   }
 
   // create node
@@ -232,35 +221,14 @@ void StartDefaultTask(void *argument)
     }
     else
     {
-      u3_printf("data = %d\r\n", msg.data);
+      HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin); // normal running
     }
-    
     msg.data++;
     
-    osDelay(1000);
-  }
-  /* USER CODE END StartDefaultTask */
-}
-
-/* USER CODE BEGIN Header_ledTaskEntry */
-/**
-* @brief Function implementing the ledTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_ledTaskEntry */
-void ledTaskEntry(void *argument)
-{
-  /* USER CODE BEGIN ledTaskEntry */
-  /* Infinite loop */
-  for(;;)
-  {
-    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-    //u3_printf(".");
-    //HAL_UART_Transmit(&huart3, 'a', 1,  HAL_MAX_DELAY);
+    
     osDelay(500);
   }
-  /* USER CODE END ledTaskEntry */
+  /* USER CODE END StartDefaultTask */
 }
 
 /* Private application code --------------------------------------------------*/
