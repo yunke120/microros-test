@@ -230,5 +230,26 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+static size_t uart3_sendBuff(uint8_t * buf, size_t len){
+  HAL_StatusTypeDef ret;
+  if (huart3.gState == HAL_UART_STATE_READY){
+        ret = HAL_UART_Transmit_DMA(&huart3, buf, len);
+        while (ret == HAL_OK && huart3.gState != HAL_UART_STATE_READY){
+            osDelay(1);
+        }
+        return (ret == HAL_OK) ? len : 0;
+  }
+  return 0;
+}
 
+void u3_printf(char* fmt,...)  
+{  
+	static uint8_t prfBuff[512];
+  static size_t prfLeng = 0;
+	va_list ap;
+	va_start(ap,fmt);
+	prfLeng = vsnprintf(prfBuff,512,fmt,ap);
+	va_end(ap);
+	uart2_sendBuff(prfBuff,prfLeng);
+}	
 /* USER CODE END 1 */
