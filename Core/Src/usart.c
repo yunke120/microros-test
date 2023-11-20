@@ -243,13 +243,14 @@ static size_t uart3_sendBuff(uint8_t * buf, size_t len){
 }
 
 void u3_printf(char* fmt,...)  
-{  
-	static uint8_t prfBuff[512];
-  static size_t prfLeng = 0;
-	va_list ap;
-	va_start(ap,fmt);
-	prfLeng = vsnprintf(prfBuff,512,fmt,ap);
-	va_end(ap);
-	uart3_sendBuff(prfBuff,prfLeng);
+{
+	  uint8_t buffer[200];
+	  uint16_t i;
+	  va_list ap;
+	  va_start(ap,fmt);          			//ap指向fmt的地址
+	  i = vsprintf(buffer,fmt,ap);	                //vsprintf返回数组的长度
+	  va_end(ap);
+
+	  HAL_UART_Transmit(&huart3,(uint8_t *)buffer,i,0X00FF);
 }	
 /* USER CODE END 1 */

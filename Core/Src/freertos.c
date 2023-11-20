@@ -59,7 +59,7 @@ typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
-uint32_t defaultTaskBuffer[ 3000 ];
+uint32_t defaultTaskBuffer[ 3200 ];
 osStaticThreadDef_t defaultTaskControlBlock;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
@@ -159,6 +159,8 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   // micro-ROS configuration
 
+  osDelay(5000);
+
   rmw_uros_set_custom_transport(
     true,
     (void *) &huart1,
@@ -174,7 +176,9 @@ void StartDefaultTask(void *argument)
   freeRTOS_allocator.zero_allocate =  microros_zero_allocate;
 
   if (!rcutils_set_default_allocator(&freeRTOS_allocator)) {
-      u3_printf("Error on default allocators (line %d)\n", __LINE__); 
+      u3_printf("Error on default allocators (line %d)\r\n", __LINE__); 
+  }else{
+      u3_printf("Success on default allocators.\r\n");
   }
 
   // micro-ROS app
@@ -184,11 +188,28 @@ void StartDefaultTask(void *argument)
   rclc_support_t support;
   rcl_allocator_t allocator;
   rcl_node_t node;
-
+  rcl_ret_t rc;
   allocator = rcl_get_default_allocator();
+  if(allocator.allocate == NULL || allocator.deallocate == NULL)
+  {
+     u3_printf("rcl_get_default_allocator error (line %d)\r\n", __LINE__);
+  }
+  else
+  {
+     u3_printf("rcl_get_default_allocator success\r\n");
+  }
 
   //create init_options
-  rclc_support_init(&support, 0, NULL, &allocator);
+  rc = rclc_support_init(&support, 0, NULL, &allocator);
+  if(rc != RCL_RET_OK)
+  {
+	  u3_printf("rclc_support_init error. (line %d)\r\n", __LINE__);
+	  rclc_support_fini(&support);
+  }
+  else
+  {
+	  u3_printf("rclc_support_init ok.\r\n");
+  }
 
   // create node
   rclc_node_init_default(&node, "cubemx_node", "", &support);
@@ -207,11 +228,15 @@ void StartDefaultTask(void *argument)
     rcl_ret_t ret = rcl_publish(&publisher, &msg, NULL);
     if (ret != RCL_RET_OK)
     {
-      u3_printf("Error publishing (line %d)\n", __LINE__); 
+      u3_printf("Error publishing (line %d)\r\n", __LINE__); 
+    }
+    else
+    {
+      u3_printf("data = %d\r\n", msg.data);
     }
     
     msg.data++;
-    u3_printf("data = %d\r\n", msg.data);
+    
     osDelay(1000);
   }
   /* USER CODE END StartDefaultTask */
@@ -231,7 +256,8 @@ void ledTaskEntry(void *argument)
   for(;;)
   {
     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-    u3_printf(".");
+    //u3_printf(".");
+    //HAL_UART_Transmit(&huart3, 'a', 1,  HAL_MAX_DELAY);
     osDelay(500);
   }
   /* USER CODE END ledTaskEntry */
