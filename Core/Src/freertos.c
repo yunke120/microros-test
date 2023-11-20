@@ -155,7 +155,7 @@ void StartDefaultTask(void *argument)
   freeRTOS_allocator.zero_allocate =  microros_zero_allocate;
 
   if (!rcutils_set_default_allocator(&freeRTOS_allocator)) {
-      printf("Error on default allocators (line %d)\n", __LINE__); 
+      //printf("Error on default allocators (line %d)\n", __LINE__); 
   }
 
   // micro-ROS app
@@ -188,7 +188,7 @@ void StartDefaultTask(void *argument)
     rcl_ret_t ret = rcl_publish(&publisher, &msg, NULL);
     if (ret != RCL_RET_OK)
     {
-      printf("Error publishing (line %d)\n", __LINE__); 
+      //printf("Error publishing (line %d)\n", __LINE__); 
     }
     
     msg.data++;
