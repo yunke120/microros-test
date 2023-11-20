@@ -119,6 +119,14 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  if(defaultTaskHandle == NULL)
+  {
+    u2_printf("failed to create microros thread");
+  }
+  else
+  {
+    u2_printf("create microros thread success.");
+  }
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -155,7 +163,7 @@ void StartDefaultTask(void *argument)
   freeRTOS_allocator.zero_allocate =  microros_zero_allocate;
 
   if (!rcutils_set_default_allocator(&freeRTOS_allocator)) {
-      //printf("Error on default allocators (line %d)\n", __LINE__); 
+      u2_printf("Error on default allocators (line %d)\n", __LINE__); 
   }
 
   // micro-ROS app
@@ -188,11 +196,12 @@ void StartDefaultTask(void *argument)
     rcl_ret_t ret = rcl_publish(&publisher, &msg, NULL);
     if (ret != RCL_RET_OK)
     {
-      //printf("Error publishing (line %d)\n", __LINE__); 
+      u2_printf("Error publishing (line %d)\n", __LINE__); 
     }
     
     msg.data++;
-    osDelay(10);
+    u2_printf("data = %d\r\n", msg.data);
+    osDelay(1000);
   }
   /* USER CODE END StartDefaultTask */
 }
