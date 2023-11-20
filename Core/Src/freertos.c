@@ -69,6 +69,13 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = sizeof(defaultTaskBuffer),
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for ledTask */
+osThreadId_t ledTaskHandle;
+const osThreadAttr_t ledTask_attributes = {
+  .name = "ledTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -84,6 +91,7 @@ void * microros_zero_allocate(size_t number_of_elements, size_t size_of_element,
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
+void ledTaskEntry(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -116,6 +124,9 @@ void MX_FREERTOS_Init(void) {
   /* Create the thread(s) */
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+
+  /* creation of ledTask */
+  ledTaskHandle = osThreadNew(ledTaskEntry, NULL, &ledTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -204,6 +215,26 @@ void StartDefaultTask(void *argument)
     osDelay(1000);
   }
   /* USER CODE END StartDefaultTask */
+}
+
+/* USER CODE BEGIN Header_ledTaskEntry */
+/**
+* @brief Function implementing the ledTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ledTaskEntry */
+void ledTaskEntry(void *argument)
+{
+  /* USER CODE BEGIN ledTaskEntry */
+  /* Infinite loop */
+  for(;;)
+  {
+    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    u3_printf(".");
+    osDelay(500);
+  }
+  /* USER CODE END ledTaskEntry */
 }
 
 /* Private application code --------------------------------------------------*/
