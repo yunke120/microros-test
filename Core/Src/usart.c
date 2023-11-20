@@ -21,7 +21,7 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-
+#include <stdarg.h>
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -250,6 +250,6 @@ void u3_printf(char* fmt,...)
 	va_start(ap,fmt);
 	prfLeng = vsnprintf(prfBuff,512,fmt,ap);
 	va_end(ap);
-	uart2_sendBuff(prfBuff,prfLeng);
+	uart3_sendBuff(prfBuff,prfLeng);
 }	
 /* USER CODE END 1 */
